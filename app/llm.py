@@ -31,7 +31,64 @@ class LLMClient:
         except (urllib.error.URLError, TimeoutError, KeyError, ValueError):
             return self._fallback_explanation(call, decision)
 
-    def _chat_completion(self, prompt: str) -> str:
+    def check_connection(self) -> dict[str, object]:
+        """Return a sanitized live LLM health check without exposing API keys."""
+        provider = self.settings.llm_provider
+        model = (
+            self.settings.openrouter_model
+            if provider == "openrouter"
+            else self.settings.openai_model
+        )
+        if not self.settings.has_live_llm:
+            return {
+                "ok": False,
+                "provider": provider,
+                "model": model,
+                "configured": False,
+                "error_type": "missing_api_key",
+                "message": "No API key is configured for the selected provider.",
+            }
+
+        try:
+            response = self._chat_completion("Reply with exactly: API_OK", max_tokens=20)
+            return {
+                "ok": True,
+                "provider": provider,
+                "model": model,
+                "configured": True,
+                "response_preview": response[:160],
+            }
+        except urllib.error.HTTPError as exc:
+            body = exc.read().decode("utf-8", errors="replace")[:800]
+            return {
+                "ok": False,
+                "provider": provider,
+                "model": model,
+                "configured": True,
+                "error_type": "HTTPError",
+                "status_code": exc.code,
+                "message": body,
+            }
+        except urllib.error.URLError as exc:
+            return {
+                "ok": False,
+                "provider": provider,
+                "model": model,
+                "configured": True,
+                "error_type": "URLError",
+                "message": str(exc.reason)[:500],
+            }
+        except (TimeoutError, KeyError, ValueError) as exc:
+            return {
+                "ok": False,
+                "provider": provider,
+                "model": model,
+                "configured": True,
+                "error_type": type(exc).__name__,
+                "message": str(exc)[:500],
+            }
+
+    def _chat_completion(self, prompt: str, max_tokens: int = 220) -> str:
         if self.settings.llm_provider == "openrouter":
             url = "https://openrouter.ai/api/v1/chat/completions"
             api_key = self.settings.openrouter_api_key
@@ -61,7 +118,7 @@ class LLMClient:
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0.1,
-            "max_tokens": 220,
+            "max_tokens": max_tokens,
         }
         request = urllib.request.Request(
             url,
