@@ -9,7 +9,7 @@ from pathlib import Path
 class Settings:
     llm_provider: str = "mock"
     openrouter_api_key: str = ""
-    openrouter_model: str = "google/gemini-2.0-flash-exp:free"
+    openrouter_model: str = "openrouter/free"
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
     mode: str = "demo"
@@ -36,7 +36,7 @@ def load_settings() -> Settings:
         llm_provider=os.getenv("LLM_PROVIDER", "mock").strip().lower() or "mock",
         openrouter_api_key=os.getenv("OPENROUTER_API_KEY", ""),
         openrouter_model=os.getenv(
-            "OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free"
+            "OPENROUTER_MODEL", "openrouter/free"
         ),
         openai_api_key=os.getenv("OPENAI_API_KEY", ""),
         openai_model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
