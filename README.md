@@ -115,7 +115,7 @@ OpenRouter:
 ```env
 LLM_PROVIDER=openrouter
 OPENROUTER_API_KEY=your_key_here
-OPENROUTER_MODEL=google/gemini-2.0-flash-exp:free
+OPENROUTER_MODEL=openrouter/free
 ```
 
 Direct OpenAI:
