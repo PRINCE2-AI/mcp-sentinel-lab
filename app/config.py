@@ -26,6 +26,7 @@ class Settings:
 
 
 def load_settings() -> Settings:
+    load_dotenv_file(project_root() / ".env")
     allowed_roots = tuple(
         item.strip()
         for item in os.getenv("MCP_SENTINEL_ALLOWED_ROOTS", "./workspace").split(";")
@@ -47,3 +48,20 @@ def load_settings() -> Settings:
 
 def project_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+def load_dotenv_file(path: Path) -> None:
+    """Load simple KEY=VALUE lines without requiring an extra dependency."""
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
