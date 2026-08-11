@@ -87,6 +87,12 @@ Run API:
 uvicorn app.api:app --reload
 ```
 
+Run no-dependency API if FastAPI is not installed:
+
+```bash
+python -m app.simple_api --port 8000
+```
+
 Run dashboard:
 
 ```bash
@@ -102,7 +108,7 @@ python -m unittest discover tests
 ## Optional LLM Setup
 
 The project works without an API key. For real model-generated explanations,
-create `.env` from `.env.example`.
+create `.env` in the project root from `.env.example`.
 
 OpenRouter:
 
@@ -121,6 +127,12 @@ OPENAI_MODEL=gpt-4o-mini
 ```
 
 Do not commit `.env`.
+
+API key location:
+
+```text
+mcp-sentinel-lab/.env
+```
 
 ## Project Structure
 
