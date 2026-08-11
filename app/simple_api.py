@@ -23,6 +23,9 @@ class SentinelRequestHandler(BaseHTTPRequestHandler):
         if self.path == "/health":
             self._send_json({"status": "ok", "live_llm": self.llm.settings.has_live_llm})
             return
+        if self.path == "/llm/status":
+            self._send_json(self.llm.check_connection())
+            return
         if self.path == "/evaluate":
             self._send_json(run_demo()["summary"])
             return
