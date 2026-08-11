@@ -32,6 +32,10 @@ def create_app() -> Any:
     def health() -> dict[str, Any]:
         return {"status": "ok", "live_llm": llm.settings.has_live_llm}
 
+    @api.get("/llm/status")
+    def llm_status() -> dict[str, object]:
+        return llm.check_connection()
+
     @api.post("/gateway/decide")
     def decide(payload: dict[str, Any]) -> dict[str, Any]:
         call = ToolCall(
