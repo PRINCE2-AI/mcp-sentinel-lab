@@ -167,12 +167,18 @@ mcp-sentinel-lab/
 ## API
 
 - `GET /health`
+- `GET /llm/status`
 - `GET /scan`
 - `GET /evaluate`
 - `POST /gateway/decide`
 - `POST /gateway/explain`
 
 Example request:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/llm/status" -Method Get |
+  ConvertTo-Json -Depth 10
+```
 
 ```json
 {
