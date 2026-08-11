@@ -36,22 +36,30 @@ class SentinelRequestHandler(BaseHTTPRequestHandler):
         self._send_json({"error": "not_found"}, status=404)
 
     def do_POST(self) -> None:
-        payload = self._read_json_body()
-        if self.path == "/gateway/decide":
-            result = self.gateway.decide(_tool_call_from_payload(payload))
-            self._send_json(result)
-            return
-        if self.path == "/gateway/explain":
-            call = _tool_call_from_payload(payload)
-            result = self.gateway.decide(call)
+        try:
+            payload = self._read_json_body()
+            if self.path == "/gateway/decide":
+                result = self.gateway.decide(_tool_call_from_payload(payload))
+                self._send_json(result)
+                return
+            if self.path == "/gateway/explain":
+                call = _tool_call_from_payload(payload)
+                result = self.gateway.decide(call)
+                self._send_json(
+                    {
+                        "decision": result.decision,
+                        "explanation": self.llm.explain_decision(call, result.decision),
+                    }
+                )
+                return
+            self._send_json({"error": "not_found"}, status=404)
+        except ValueError as exc:
+            self._send_json({"error": "bad_request", "message": str(exc)}, status=400)
+        except Exception as exc:
             self._send_json(
-                {
-                    "decision": result.decision,
-                    "explanation": self.llm.explain_decision(call, result.decision),
-                }
+                {"error": "internal_error", "message": type(exc).__name__},
+                status=500,
             )
-            return
-        self._send_json({"error": "not_found"}, status=404)
 
     def log_message(self, format: str, *args: Any) -> None:
         return
@@ -59,9 +67,15 @@ class SentinelRequestHandler(BaseHTTPRequestHandler):
     def _read_json_body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
         if length == 0:
-            return {}
+            raise ValueError("Request body is required.")
         raw = self.rfile.read(length).decode("utf-8")
-        return json.loads(raw)
+        try:
+            payload = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"Invalid JSON body: {exc.msg}.") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("Request body must be a JSON object.")
+        return payload
 
     def _send_json(self, payload: Any, status: int = 200) -> None:
         body = json.dumps(_jsonable(payload), indent=2, sort_keys=True).encode("utf-8")
@@ -73,6 +87,8 @@ class SentinelRequestHandler(BaseHTTPRequestHandler):
 
 
 def _tool_call_from_payload(payload: dict[str, Any]) -> ToolCall:
+    if not payload.get("tool_name"):
+        raise ValueError("Field 'tool_name' is required.")
     return ToolCall(
         tool_name=payload["tool_name"],
         arguments=payload.get("arguments", {}),
