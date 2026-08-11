@@ -28,7 +28,7 @@ class LLMClient:
         )
         try:
             return self._chat_completion(prompt)
-        except (urllib.error.URLError, TimeoutError, KeyError, ValueError):
+        except Exception:
             return self._fallback_explanation(call, decision)
 
     def check_connection(self) -> dict[str, object]:
@@ -78,7 +78,7 @@ class LLMClient:
                 "error_type": "URLError",
                 "message": str(exc.reason)[:500],
             }
-        except (TimeoutError, KeyError, ValueError) as exc:
+        except Exception as exc:
             return {
                 "ok": False,
                 "provider": provider,
