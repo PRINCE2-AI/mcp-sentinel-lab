@@ -4,7 +4,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Agent Security](https://img.shields.io/badge/Agent%20Security-MCP%20Gateway-111827)](docs/threat_model.md)
 [![OpenRouter Optional](https://img.shields.io/badge/OpenRouter-optional%20LLM%20explanations-7C3AED)](.env.example)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-HTML%20Preview-0B7285)](https://htmlpreview.github.io/?https://github.com/PRINCE2-AI/mcp-sentinel-lab/blob/main/site/index.html)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-0B7285)](https://prince2-ai.github.io/mcp-sentinel-lab/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/PRINCE2-AI/mcp-sentinel-lab?style=social)](https://github.com/PRINCE2-AI/mcp-sentinel-lab/stargazers)
 
@@ -17,11 +17,23 @@ MCP Sentinel Lab protects agent tool calls before they touch files, networks, me
 
 ## Live Demo
 
-- [Open the public demo](https://htmlpreview.github.io/?https://github.com/PRINCE2-AI/mcp-sentinel-lab/blob/main/site/index.html)
+- [Open the hosted GitHub Pages demo](https://prince2-ai.github.io/mcp-sentinel-lab/)
 - [Read the demo guide](docs/demo.md)
-- [View CI proof](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions)
+- [View CI proof](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions/workflows/ci.yml)
+- [View GitHub Pages deployments](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions/workflows/pages.yml)
 
-The public demo is intentionally read-only and does not use an API key. It shows the deterministic offline benchmark, attack cases, policy decisions, and proof links. GitHub Pages deployment is also configured in this repository; enable Pages from repository settings if you want the `prince2-ai.github.io` URL.
+The public demo is intentionally read-only and does not use an API key. It shows the deterministic offline benchmark, attack cases, policy decisions, and proof links for recruiters.
+
+## Recruiter Proof
+
+| Proof | Link |
+| --- | --- |
+| Hosted demo | [GitHub Pages](https://prince2-ai.github.io/mcp-sentinel-lab/) |
+| Passing CI | [GitHub Actions CI](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions/workflows/ci.yml) |
+| Deployment proof | [GitHub Pages workflow](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions/workflows/pages.yml) |
+| API examples | [demo/requests.http](demo/requests.http) |
+| Expected outputs | [demo/sample_outputs.json](demo/sample_outputs.json) |
+| Resume bullets | [docs/resume_bullets.md](docs/resume_bullets.md) |
 
 ## See It In Action
 
@@ -295,6 +307,7 @@ MCP Sentinel Lab shows production-minded AI engineering beyond a chatbot:
 - privacy-aware data-flow control
 - deterministic evaluation with baseline comparison
 - API, CLI, dashboard, tests, CI, docs, and live LLM explanation mode
+- hosted GitHub Pages demo with visible CI/deployment proof
 
 Resume-ready bullets are available in [docs/resume_bullets.md](docs/resume_bullets.md).
 
@@ -304,7 +317,7 @@ Resume-ready bullets are available in [docs/resume_bullets.md](docs/resume_bulle
 - [ ] Add user approval workflow for medium-risk tool calls
 - [ ] Add replayable trace viewer with attack timelines
 - [ ] Add provider-specific policy templates for filesystem, browser, email, and database tools
-- [ ] Add a public demo video and hosted read-only dashboard
+- [ ] Add public demo video walkthrough
 
 ## License
 
