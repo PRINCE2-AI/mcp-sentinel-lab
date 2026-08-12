@@ -16,3 +16,5 @@ data/traces/*.sqlite
 data/tool_pins.json
 outputs/
 .tmp/
+.tmp-sites/
+live-demo/
