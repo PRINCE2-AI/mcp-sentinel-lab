@@ -4,7 +4,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Agent Security](https://img.shields.io/badge/Agent%20Security-MCP%20Gateway-111827)](docs/threat_model.md)
 [![OpenRouter Optional](https://img.shields.io/badge/OpenRouter-optional%20LLM%20explanations-7C3AED)](.env.example)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-0B7285)](https://prince2-ai.github.io/mcp-sentinel-lab/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-HTML%20Preview-0B7285)](https://htmlpreview.github.io/?https://github.com/PRINCE2-AI/mcp-sentinel-lab/blob/main/site/index.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2ea44f.svg)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/PRINCE2-AI/mcp-sentinel-lab?style=social)](https://github.com/PRINCE2-AI/mcp-sentinel-lab/stargazers)
 
@@ -17,11 +17,11 @@ MCP Sentinel Lab protects agent tool calls before they touch files, networks, me
 
 ## Live Demo
 
-- [Open the public demo](https://prince2-ai.github.io/mcp-sentinel-lab/)
+- [Open the public demo](https://htmlpreview.github.io/?https://github.com/PRINCE2-AI/mcp-sentinel-lab/blob/main/site/index.html)
 - [Read the demo guide](docs/demo.md)
 - [View CI proof](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions)
 
-The public demo is intentionally read-only and does not use an API key. It shows the deterministic offline benchmark, attack cases, policy decisions, and proof links.
+The public demo is intentionally read-only and does not use an API key. It shows the deterministic offline benchmark, attack cases, policy decisions, and proof links. GitHub Pages deployment is also configured in this repository; enable Pages from repository settings if you want the `prince2-ai.github.io` URL.
 
 ## See It In Action
 
