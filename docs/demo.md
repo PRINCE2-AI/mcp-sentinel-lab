@@ -1,6 +1,14 @@
 # Demo Guide
 
-This guide gives a recruiter-friendly demo path for MCP Sentinel Lab. It starts offline, then shows the live API explanation mode if an OpenRouter or OpenAI-compatible key is configured.
+This guide gives a recruiter-friendly demo path for MCP Sentinel Lab. Start with the hosted GitHub Pages demo, then run the offline benchmark and local API checks.
+
+## Public Hosted Demo
+
+- Live demo: [https://prince2-ai.github.io/mcp-sentinel-lab/](https://prince2-ai.github.io/mcp-sentinel-lab/)
+- CI proof: [GitHub Actions CI](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions/workflows/ci.yml)
+- Deployment proof: [GitHub Pages workflow](https://github.com/PRINCE2-AI/mcp-sentinel-lab/actions/workflows/pages.yml)
+
+The hosted page is read-only and public-safe. It shows the baseline-vs-protected evaluation, security controls, attack categories, and proof links without requiring an API key.
 
 ## Demo 1: Offline Attack Evaluation
 
