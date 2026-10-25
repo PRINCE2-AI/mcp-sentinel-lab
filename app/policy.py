@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import os
 import re
-from pathlib import PurePosixPath, PureWindowsPath
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 from app.privacy import PrivacyGuard
 from app.schemas import (
@@ -67,11 +67,28 @@ class PolicyEngine:
         self.trusted_domains = trusted_domains or {"api.github.com", "docs.github.com"}
         self.privacy_guard = privacy_guard or PrivacyGuard()
 
-    def decide(self, call: ToolCall, scan_report: ScanReport | None = None) -> PolicyDecision:
+    def decide(
+        self,
+        call: ToolCall,
+        scan_report: ScanReport | None = None,
+        manifest_changed: bool = False,
+    ) -> PolicyDecision:
         rules: list[PolicyRule] = []
         reasons: list[str] = []
         risk_score = 0
         redacted_arguments = self.privacy_guard.redact(call.arguments)
+
+        if manifest_changed:
+            self._add(
+                rules,
+                reasons,
+                "policy.manifest_drift",
+                Decision.BLOCK,
+                RiskLevel.CRITICAL,
+                f"Manifest for '{call.tool_name}' changed after pinning (possible rug-pull); explicit re-trust required.",
+                ("manifest", "tool-poisoning", "rug-pull"),
+            )
+            risk_score += 60
 
         if call.tool_name not in self.allowed_tools:
             self._add(
@@ -130,18 +147,17 @@ class PolicyEngine:
                     )
                     risk_score += 50
 
-            if any(token in lowered_key for token in ("path", "file", "directory")):
-                if self._path_escapes_workspace(str(value)):
-                    self._add(
-                        rules,
-                        reasons,
-                        "policy.workspace_escape",
-                        Decision.BLOCK,
-                        RiskLevel.HIGH,
-                        f"Path argument '{key}' escapes the configured workspace.",
-                        ("filesystem", "sandbox"),
-                    )
-                    risk_score += 35
+            if isinstance(value, str) and self._path_escapes_workspace(value):
+                self._add(
+                    rules,
+                    reasons,
+                    "policy.workspace_escape",
+                    Decision.BLOCK,
+                    RiskLevel.HIGH,
+                    f"Argument '{key}' contains a path outside the configured workspace.",
+                    ("filesystem", "sandbox"),
+                )
+                risk_score += 35
 
             if any(token in lowered_key for token in ("url", "endpoint", "webhook")):
                 domain = urlparse(str(value)).netloc.lower()
@@ -246,16 +262,40 @@ class PolicyEngine:
         return any(pattern.search(command) for pattern in BLOCKED_COMMAND_PATTERNS)
 
     def _path_escapes_workspace(self, raw_path: str) -> bool:
-        if not raw_path:
+        candidate = raw_path.strip().strip("\"'")
+        if not candidate:
             return False
-        if re.match(r"^[A-Za-z]:\\", raw_path):
-            lowered = raw_path.lower()
-            return not any(lowered.startswith(root.lower().rstrip("\\/")) for root in self.allowed_roots)
-        if raw_path.startswith("/"):
-            normalized = str(PurePosixPath(raw_path))
-            return not any(normalized.startswith(root.rstrip("/")) for root in self.allowed_roots)
-        if ".." in PureWindowsPath(raw_path).parts or ".." in PurePosixPath(raw_path).parts:
+
+        lowered = candidate.lower()
+        if lowered.startswith("file://"):
+            candidate = candidate[7:]
+            lowered = candidate.lower()
+
+        if re.match(r"^[a-z]:", lowered):
+            return not self._within_allowed_root(candidate)
+        if lowered.startswith(("\\\\", "//")):
+            return not self._within_allowed_root(candidate)
+        if lowered.startswith("~"):
             return True
+        if lowered.startswith(("/", "\\")):
+            return not self._within_allowed_root(candidate)
+
+        normalized = unquote(unquote(candidate)).replace("\\", "/")
+        if ".." in [part for part in normalized.split("/") if part]:
+            return True
+        return False
+
+    def _within_allowed_root(self, candidate: str) -> bool:
+        resolved = os.path.abspath(candidate)
+        for root in self.allowed_roots:
+            if not os.path.isabs(root):
+                continue
+            root_path = os.path.abspath(root)
+            try:
+                if os.path.commonpath([resolved, root_path]) == root_path:
+                    return True
+            except ValueError:
+                continue
         return False
 
     @staticmethod

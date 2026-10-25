@@ -17,13 +17,15 @@ class ToolPinStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._pins = self._load()
 
-    def check_and_update(self, manifest: ToolManifest, manifest_hash: str) -> bool:
+    def check(self, manifest: ToolManifest, manifest_hash: str) -> bool:
         key = f"{manifest.server_name}:{manifest.name}"
         previous = self._pins.get(key)
-        changed = previous is not None and previous != manifest_hash
+        return previous is not None and previous != manifest_hash
+
+    def trust(self, manifest: ToolManifest, manifest_hash: str) -> None:
+        key = f"{manifest.server_name}:{manifest.name}"
         self._pins[key] = manifest_hash
         self._save()
-        return changed
 
     def _load(self) -> dict[str, str]:
         if not self.path.exists():
@@ -57,14 +59,28 @@ class SentinelGateway:
     def register_tool(self, manifest: ToolManifest) -> None:
         self.manifests[manifest.name] = manifest
 
+    def trust_tool(self, name: str) -> None:
+        """Accept the current manifest hash after an out-of-band re-trust."""
+        manifest = self.manifests.get(name)
+        if manifest is None:
+            raise KeyError(f"Unknown tool: {name}")
+        report = self.scanner.scan(manifest)
+        self.pin_store.trust(manifest, report.manifest_hash)
+
     def decide(self, call: ToolCall) -> GatewayResult:
         manifest = self.manifests.get(call.tool_name)
         scan_report = self.scanner.scan(manifest) if manifest else None
         manifest_changed = False
         if manifest and scan_report:
-            manifest_changed = self.pin_store.check_and_update(manifest, scan_report.manifest_hash)
+            manifest_changed = self.pin_store.check(manifest, scan_report.manifest_hash)
+            if not manifest_changed:
+                self.pin_store.trust(manifest, scan_report.manifest_hash)
 
-        decision = self.policy_engine.decide(call, scan_report=scan_report)
+        decision = self.policy_engine.decide(
+            call,
+            scan_report=scan_report,
+            manifest_changed=manifest_changed,
+        )
         result = GatewayResult(
             call=call,
             decision=decision,
