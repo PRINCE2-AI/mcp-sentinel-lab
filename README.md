@@ -15,6 +15,8 @@ MCP Sentinel Lab protects agent tool calls before they touch files, networks, me
 > [!NOTE]
 > This is a practical research-inspired engineering project, not an exact reproduction of AgentDojo, MCPTox, AgentCanary, SAFE-MCP, or any state-of-the-art security claim.
 
+**Write-up:** [The MCP rug pull: your approved tool server can change after trust](https://thereliableagent.substack.com/p/the-mcp-rug-pull-your-approved-tool) — the four checks in this repository, with the code and the benchmark numbers.
+
 ## Live Demo
 
 - [Open the hosted GitHub Pages demo](https://prince2-ai.github.io/mcp-sentinel-lab/)
