@@ -212,7 +212,7 @@ The included benchmark contains benign local reads plus attacks for workspace es
 | Policy coverage | n/a | 100% |
 | Decision trace | none | stored with reasons |
 
-These results are deterministic for the bundled cases and run offline. See [docs/evaluation.md](docs/evaluation.md) and [docs/demo.md](docs/demo.md).
+These results cover the 7 bundled demo cases (6 attacks and 1 benign control). The baseline is allow-all by construction, and *policy coverage* counts agreement with the 7 hand-labelled expected decisions. These are deterministic regression checks, not a general security benchmark. See [docs/evaluation.md](docs/evaluation.md) for the metric definitions and [docs/demo.md](docs/demo.md) for the demo walkthrough.
 
 ## Research Basis
 
@@ -257,7 +257,7 @@ python -m app.cli demo
 python scripts/smoke_api.py --base-url http://127.0.0.1:8000
 ```
 
-GitHub Actions runs the regression suite on every push to `main`.
+GitHub Actions runs the regression suite and demo on every push and pull request.
 
 ## Project Layout
 
