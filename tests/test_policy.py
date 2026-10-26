@@ -57,6 +57,73 @@ class PolicyEngineTests(unittest.TestCase):
 
         self.assertEqual(decision.decision, Decision.REQUIRE_APPROVAL)
 
+    def test_blocks_windows_drive_path_under_any_key(self) -> None:
+        decision = self.engine.decide(
+            ToolCall(
+                tool_name="filesystem.read",
+                arguments={"target": "C:/Users/prince/.ssh/id_rsa"},
+                user_goal="Read a project note.",
+            )
+        )
+
+        self.assertEqual(decision.decision, Decision.BLOCK)
+        self.assertIn("policy.workspace_escape", {rule.rule_id for rule in decision.matched_rules})
+
+    def test_blocks_unc_path(self) -> None:
+        decision = self.engine.decide(
+            ToolCall(
+                tool_name="filesystem.read",
+                arguments={"target": "\\\\server\\share\\secret.txt"},
+                user_goal="Read a project note.",
+            )
+        )
+
+        self.assertEqual(decision.decision, Decision.BLOCK)
+
+    def test_blocks_percent_encoded_traversal(self) -> None:
+        decision = self.engine.decide(
+            ToolCall(
+                tool_name="filesystem.read",
+                arguments={"target": "workspace/%2e%2e/secrets.env"},
+                user_goal="Read a project note.",
+            )
+        )
+
+        self.assertEqual(decision.decision, Decision.BLOCK)
+
+    def test_blocks_double_encoded_traversal(self) -> None:
+        decision = self.engine.decide(
+            ToolCall(
+                tool_name="filesystem.read",
+                arguments={"target": "workspace/%252e%252e/secrets.env"},
+                user_goal="Read a project note.",
+            )
+        )
+
+        self.assertEqual(decision.decision, Decision.BLOCK)
+
+    def test_blocks_windows_drive_relative_path(self) -> None:
+        decision = self.engine.decide(
+            ToolCall(
+                tool_name="filesystem.read",
+                arguments={"target": "C:Users/prince/.ssh/id_rsa"},
+                user_goal="Read a project note.",
+            )
+        )
+
+        self.assertEqual(decision.decision, Decision.BLOCK)
+
+    def test_allows_relative_workspace_path_under_unknown_key(self) -> None:
+        decision = self.engine.decide(
+            ToolCall(
+                tool_name="filesystem.read",
+                arguments={"target": "workspace/notes.md"},
+                user_goal="Read a project note.",
+            )
+        )
+
+        self.assertEqual(decision.decision, Decision.ALLOW)
+
 
 if __name__ == "__main__":
     unittest.main()
